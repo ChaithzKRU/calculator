@@ -1,9 +1,6 @@
 const numbers = Array.from(document.querySelectorAll(".number"));
 
-const add = document.querySelector(".plus");
-const subtract = document.querySelector(".minus");
-const multiply = document.querySelector(".multiply");
-const divide = document.querySelector(".divide");
+const operators = Array.from(document.querySelectorAll(".operator"));
 
 const allClear = document.querySelector(".all-clear");
 const equalsTo = document.querySelector(".equals-to");
@@ -11,17 +8,17 @@ let display = document.querySelector(".display");
 
 let operand1 = null;
 let operand2 = null;
-let operator = null;
+let currentOperator = null;
 let result = null;
 
 numbers.forEach((number) => {
   number.addEventListener("click", () =>
-    registerToOperand(parseInt(number.textContent))
+    registerOperand(parseInt(number.textContent))
   );
 });
 
-function registerToOperand(number) {
-  if (operator === null) {
+function registerOperand(number) {
+  if (currentOperator === null) {
     if (operand1 === null) operand1 = 0;
     operand1 = number + 10 * operand1;
     display.textContent = operand1;
@@ -32,82 +29,75 @@ function registerToOperand(number) {
   }
 }
 
-add.addEventListener("click", () => {
-  if (operand1 !== null && operand2 !== null)
-    doConditionalOperation(addOperands);
-  operator = "addition";
+operators.forEach((operator) => {
+  operator.addEventListener("click", () => {
+    if (operand1 !== null && operand2 !== null) {
+      operate(currentOperator);
+    }
+    currentOperator = operator.textContent;
+  });
 });
 
-subtract.addEventListener("click", () => {
-  if (operand1 !== null && operand2 !== null)
-    doConditionalOperation(subtractOperands);
-  operator = "subtract";
-});
-
-multiply.addEventListener("click", () => {
-  if (operand1 !== null && operand2 !== null)
-    doConditionalOperation(multiplyOperands);
-  operator = "multiply";
-});
-
-divide.addEventListener("click", () => {
-  if (operand1 !== null && operand2 !== null)
-    doConditionalOperation(divideOperands);
-  operator = "divide";
-});
-
-function doConditionalOperation(operatorFunction) {
-  operatorFunction(operand1, operand2);
-  operand1 = result;
-  operand2 = null;
-}
-
-equalsTo.addEventListener("click", () => {
+function operate(operator) {
   switch (operator) {
-    case "addition":
+    case "+":
       addOperands(operand1, operand2);
-      resetOperators();
       break;
-    case "subtract":
+    case "−":
       subtractOperands(operand1, operand2);
-      resetOperators();
       break;
-    case "divide":
-      divideOperands(operand1, operand2);
-      resetOperators();
-      break;
-    case "multiply":
+    case "×":
       multiplyOperands(operand1, operand2);
-      resetOperators();
+      break;
+    case "÷":
+      divideOperands(operand1, operand2);
       break;
     default:
-      display.textContent = "NOTHING";
+      display.textContent = "Invalid";
+      break;
   }
-});
+}
 
-function addOperands(operand1, operand2) {
-  result = operand1 + operand2;
+function addOperands(num1, num2) {
+  result = num1 + num2;
+  updateOperators();
   displayResult();
 }
 
-function subtractOperands(operand1, operand2) {
-  result = operand1 - operand2;
+function subtractOperands(num1, num2) {
+  result = num1 - num2;
+  updateOperators();
   displayResult();
 }
 
-function multiplyOperands(operand1, operand2) {
-  result = operand1 * operand2;
+function multiplyOperands(num1, num2) {
+  result = num1 * num2;
+  updateOperators();
   displayResult();
 }
 
-function divideOperands(operand1, operand2) {
-  if (operand2 === 0) {
+function divideOperands(num1, num2) {
+  if (num2 === 0) {
     display.textContent = "Common Man!!";
     return;
   }
 
-  result = operand1 / operand2;
+  result = num1 / num2;
+  updateOperators();
   displayResult();
+}
+
+function updateOperators() {
+  if (currentOperator !== null) {
+    operand1 = result;
+    operand2 = null;
+  }
+}
+
+function displayResult() {
+  let displayValue = Number(result).toFixed(5);
+  displayValue = parseFloat(displayValue);
+  display.textContent = displayValue;
 }
 
 allClear.addEventListener("click", () => {
@@ -115,13 +105,16 @@ allClear.addEventListener("click", () => {
   display.textContent = "0";
 });
 
-function displayResult() {
-  display.textContent = result;
-}
+equalsTo.addEventListener("click", () => {
+  if (operand1 !== null && operand2 !== null) {
+    operate(currentOperator);
+  }
+  resetOperators();
+});
 
 function resetOperators() {
   operand1 = null;
   operand2 = null;
-  operator = null;
+  currentOperator = null;
   result = null;
 }
